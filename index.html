@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Marks Manager</title>
+<style>
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #eef2f8; color: #172033; }
+.app { min-height: 100vh; background: light-dark(#f4f6fb, #101521); color: light-dark(#172033, #eef2ff); padding: 28px 18px 40px; }
+.wrap { max-width: 1050px; margin: 0 auto; }
+.top { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:26px; }
+.brand { display:flex; align-items:center; gap:12px; }
+.logo { display:grid; place-items:center; width:46px; height:46px; border-radius:14px; background:#4f46e5; color:white; font-size:22px; font-weight:800; }
+h1 { font-size: clamp(24px, 4vw, 34px); margin:0; letter-spacing:-.04em; }
+.sub { margin:5px 0 0; color:light-dark(#667085,#a9b4ca); font-size:14px; }
+.pill { border:1px solid light-dark(#d9def0,#30394d); border-radius:999px; padding:8px 12px; font-size:12px; font-weight:700; color:light-dark(#4f46e5,#b9b7ff); white-space:nowrap; }
+.hero { border-radius:22px; padding:25px; background:linear-gradient(125deg,#3730a3,#6366f1 65%,#818cf8); color:white; box-shadow:0 14px 32px #4338ca24; margin-bottom:20px; }
+.hero-label { font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; opacity:.8; }
+.hero h2 { font-size:24px; margin:9px 0 8px; letter-spacing:-.03em; }
+.hero p { margin:0; line-height:1.55; max-width:680px; color:#e6e7ff; font-size:14px; }
+.stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-bottom:20px; }
+.stats.extra { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.stat { background:light-dark(#fff,#191f2e); border:1px solid light-dark(#e4e8f1,#2c3447); border-radius:17px; padding:18px; }
+.stat-label { font-size:12px; color:light-dark(#697386,#a8b2c6); font-weight:700; }
+.stat-value { font-size:29px; font-weight:800; letter-spacing:-.04em; margin-top:7px; }
+.stat-note { font-size:12px; color:light-dark(#8791a3,#8996ad); margin-top:3px; }
+.panel { background:light-dark(#fff,#191f2e); border:1px solid light-dark(#e4e8f1,#2c3447); border-radius:19px; padding:21px; margin-bottom:18px; }
+.panel-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px; }
+.panel h3 { margin:0; font-size:18px; letter-spacing:-.02em; }
+.small { font-size:12px; color:light-dark(#788397,#9ca8bd); }
+.form { display:grid; grid-template-columns: minmax(0,1.5fr) minmax(120px,.7fr) auto; gap:11px; }
+label { display:block; font-size:12px; font-weight:700; margin-bottom:7px; color:light-dark(#667085,#b5bfd2); }
+input { width:100%; border:1px solid light-dark(#dce2ee,#3a4358); border-radius:11px; padding:12px 13px; background:light-dark(#fff,#111725); color:inherit; outline:none; font:inherit; }
+input:focus { border-color:#6366f1; box-shadow:0 0 0 3px #6366f122; }
+.field { min-width:0; }
+button { border:0; border-radius:11px; padding:12px 16px; background:#4f46e5; color:#fff; font:inherit; font-size:13px; font-weight:800; cursor:pointer; align-self:end; transition:transform .15s,opacity .15s; }
+button:hover { opacity:.92; transform:translateY(-1px); }
+button:focus-visible { outline:3px solid #a5b4fc; outline-offset:2px; }
+button.secondary { background:light-dark(#eef0ff,#292748); color:light-dark(#4338ca,#c7c5ff); }
+button.delete { background:transparent; color:light-dark(#b42318,#ffaaa5); padding:8px 10px; }
+.message { min-height:18px; margin-top:10px; font-size:12px; color:light-dark(#b42318,#ffaaa5); }
+.table-wrap { overflow-x:auto; }
+.results-tools { display:flex; align-items:center; gap:10px; margin:0 0 14px; }
+.results-tools input { max-width:340px; }
+.grade { display:inline-block; min-width:34px; text-align:center; border-radius:7px; padding:5px 7px; background:light-dark(#eef0ff,#292748); color:light-dark(#4338ca,#c7c5ff); font-size:12px; font-weight:800; }
+.dashboard-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.chart-card { border:1px solid light-dark(#e4e8f1,#2c3447); background:light-dark(#fafbff,#151b29); padding:16px; border-radius:14px; min-width:0; }
+.chart-card h4 { margin:0 0 14px; font-size:14px; }
+.bar-list { display:grid; gap:12px; }
+.bar-row { display:grid; grid-template-columns:90px 1fr 42px; gap:9px; align-items:center; font-size:12px; }
+.bar-track { height:10px; background:light-dark(#e8ebf5,#30384a); border-radius:99px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:99px; background:#6366f1; }
+.rank-table { width:100%; min-width:0; }
+.rank-table td,.rank-table th { padding:10px 7px; }
+.pass-summary { font-size:14px; line-height:1.7; }
+table { width:100%; border-collapse:collapse; min-width:500px; }
+th { text-align:left; color:light-dark(#7b8497,#9ca8bd); font-size:11px; text-transform:uppercase; letter-spacing:.08em; padding:12px 10px; border-bottom:1px solid light-dark(#e7eaf2,#30384a); }
+td { padding:14px 10px; border-bottom:1px solid light-dark(#edf0f6,#293144); font-size:14px; }
+tr:last-child td { border-bottom:0; }
+.name-cell { font-weight:750; }
+.index { display:inline-grid; place-items:center; width:27px; height:27px; border-radius:8px; background:light-dark(#f0f2ff,#292748); color:light-dark(#4f46e5,#c7c5ff); font-size:12px; font-weight:800; margin-right:9px; }
+.score { font-weight:800; }
+.track { height:6px; border-radius:99px; background:light-dark(#edf0f7,#30384a); overflow:hidden; width:100px; }
+.fill { height:100%; background:#6366f1; border-radius:99px; }
+.empty { text-align:center; padding:30px 10px; color:light-dark(#7b8497,#9ca8bd); font-size:14px; }
+.explain { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.explain-card { border:1px solid light-dark(#e4e8f1,#2c3447); background:light-dark(#fafbff,#151b29); padding:16px; border-radius:14px; }
+.explain-card strong { display:block; margin-bottom:7px; font-size:14px; }
+.explain-card p { margin:0; font-size:13px; line-height:1.55; color:light-dark(#667085,#a8b2c6); }
+.code { display:block; margin-top:9px; padding:10px; border-radius:9px; background:light-dark(#eef0f8,#0e1320); color:light-dark(#4338ca,#c7c5ff); font:12px ui-monospace,SFMono-Regular,Menlo,monospace; overflow-wrap:anywhere; }
+.footer { text-align:center; color:light-dark(#8992a4,#8f9bb1); font-size:12px; margin-top:22px; }
+@media(max-width:650px) { .top { align-items:flex-start; flex-direction:column; } .stats,.stats.extra { grid-template-columns:1fr; gap:10px; } .stat { padding:15px; } .stat-value { font-size:25px; } .form { grid-template-columns:1fr 1fr; } .form button { grid-column:1/-1; } .explain,.dashboard-grid { grid-template-columns:1fr; } .hero { padding:21px; } .results-tools { align-items:stretch; flex-direction:column; } .results-tools input { max-width:none; } .panel-head { align-items:flex-start; flex-wrap:wrap; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <main class="wrap">
+    <header class="top">
+      <div class="brand"><div class="logo">Σ</div><div><h1>Student Marks Manager</h1><p class="sub">A simple array-powered classroom tool</p></div></div>
+      <div class="pill">DATA STRUCTURES PROJECT</div>
+    </header>
+    <section class="hero">
+      <div class="hero-label">Mini project · Arrays in action</div>
+      <h2>Organize student results in one place.</h2>
+      <p>Add students and their marks, view the class list, calculate the average, and find the highest score. The app uses JavaScript arrays to store and process the data.</p>
+    </section>
+    <section class="stats" aria-label="Class statistics">
+      <div class="stat"><div class="stat-label">TOTAL STUDENTS</div><div class="stat-value" id="total">5</div><div class="stat-note">Students currently recorded</div></div>
+      <div class="stat"><div class="stat-label">CLASS AVERAGE</div><div class="stat-value" id="average">78.0%</div><div class="stat-note">Average of all recorded marks</div></div>
+      <div class="stat"><div class="stat-label">HIGHEST MARK</div><div class="stat-value" id="highest">95%</div><div class="stat-note" id="topStudent">Ama Mensah</div></div>
+    </section>
+    <section class="stats extra" aria-label="Performance statistics">
+      <div class="stat"><div class="stat-label">PASS RATE</div><div class="stat-value" id="passRate">80%</div><div class="stat-note">Students scoring 50% or above</div></div>
+      <div class="stat"><div class="stat-label">PASSING STUDENTS</div><div class="stat-value" id="passCount">4</div><div class="stat-note" id="failCount">1 student below 50%</div></div>
+      <div class="stat"><div class="stat-label">CLASS POSITION LEADER</div><div class="stat-value" id="leaderName">Ama</div><div class="stat-note" id="leaderNote">95% · Rank #1</div></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h3>Add a student</h3><span class="small">Marks must be between 0 and 100</span></div>
+      <form id="studentForm" class="form" novalidate>
+        <div class="field"><label for="studentName">STUDENT NAME</label><input id="studentName" name="studentName" placeholder="e.g. Kwame Asare" maxlength="60" required></div>
+        <div class="field"><label for="studentMark">MARK (%)</label><input id="studentMark" name="studentMark" type="number" min="0" max="100" step="1" placeholder="e.g. 82" required></div>
+        <button id="addStudentBtn" type="button">+ Add student</button>
+      </form>
+      <div class="message" id="message" role="status" aria-live="polite"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h3>Class results</h3><div><button class="secondary" id="exportBtn" type="button">Export CSV</button> <button class="secondary" id="resetBtn" type="button">Reset demo data</button></div></div>
+      <div class="results-tools"><input id="searchStudent" type="search" placeholder="Search students by name..." aria-label="Search students by name"><span class="small">Grades: A 80–100 · B 70–79 · C 60–69 · D 50–59 · F below 50</span></div>
+      <div class="table-wrap"><table><thead><tr><th>Index</th><th>Student</th><th>Mark</th><th>Grade</th><th>Progress</th><th>Action</th></tr></thead><tbody id="studentRows"></tbody></table><div id="empty" class="empty" hidden>No students yet. Add a student using the form above.</div></div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h3>Performance dashboard</h3><span class="small">Updates automatically when marks change</span></div>
+      <div class="dashboard-grid">
+        <div class="chart-card"><h4>Grade distribution</h4><div id="gradeChart" class="bar-list"></div></div>
+        <div class="chart-card"><h4>Pass and fail summary</h4><div id="passSummary" class="pass-summary"></div></div>
+        <div class="chart-card" style="grid-column:1/-1"><h4>Class ranking · Highest mark first</h4><div class="table-wrap"><table class="rank-table"><thead><tr><th>Rank</th><th>Student</th><th>Mark</th><th>Grade</th></tr></thead><tbody id="rankingRows"></tbody></table><div id="rankingEmpty" class="empty" hidden>No rankings until marks are added.</div></div></div>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="panel-head"><h3>Where are the arrays?</h3><span class="small">The key idea for your presentation</span></div>
+      <div class="explain">
+        <div class="explain-card"><strong>1. Student names array</strong><p>Stores each student's name at an index.</p><code class="code">studentNames[0] → "Ama Mensah"</code></div>
+        <div class="explain-card"><strong>2. Student marks array</strong><p>Stores the mark at the matching index, so the name and mark stay linked by position.</p><code class="code">studentMarks[0] → 95</code></div>
+        <div class="explain-card"><strong>3. Traversal with a loop</strong><p>A loop visits the arrays from index 0 through the last index to display results and calculate the average.</p><code class="code">for (let i = 0; i &lt; studentNames.length; i++)</code></div>
+        <div class="explain-card"><strong>4. Finding the highest mark</strong><p>The app compares the marks to find the largest value and displays the matching student's name.</p><code class="code">Math.max(...studentMarks)</code></div>
+      </div>
+    </section>
+    <p class="footer">Student Marks Manager · Your changes are saved in this browser on this device.</p>
+  </main>
+</div>
+<script>
+// Parallel arrays: the same index refers to the same student.
+const initialNames = ["Ama Mensah", "Kwame Asare", "Esi Boateng", "Kojo Owusu", "Abena Osei"];
+const initialMarks = [95, 82, 76, 68, 69];
+const storageKey = 'studentMarksManagerData';
+function loadSavedData() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(storageKey));
+    if (saved && Array.isArray(saved.names) && Array.isArray(saved.marks) &&
+        saved.names.length === saved.marks.length &&
+        saved.names.every(name => typeof name === 'string') &&
+        saved.marks.every(mark => Number.isInteger(mark) && mark >= 0 && mark <= 100)) {
+      return { names: saved.names, marks: saved.marks };
+    }
+  } catch (error) {
+    // If saved data is unavailable or invalid, start with the demo data.
+  }
+  return { names: [...initialNames], marks: [...initialMarks] };
+}
+function saveData() {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify({ names: studentNames, marks: studentMarks }));
+  } catch (error) {
+    message.textContent = 'Changes work, but this browser could not save them for next time.';
+  }
+}
+const savedData = loadSavedData();
+let studentNames = savedData.names;
+let studentMarks = savedData.marks;
+const form = document.getElementById('studentForm');
+const nameInput = document.getElementById('studentName');
+const markInput = document.getElementById('studentMark');
+const message = document.getElementById('message');
+const searchInput = document.getElementById('searchStudent');
+function gradeForMark(mark) {
+  if (mark >= 80) return 'A';
+  if (mark >= 70) return 'B';
+  if (mark >= 60) return 'C';
+  if (mark >= 50) return 'D';
+  return 'F';
+}
+function updatePerformanceDashboard() {
+  const count = studentMarks.length;
+  const passCount = studentMarks.filter(mark => mark >= 50).length;
+  const failCount = count - passCount;
+  document.getElementById('passRate').textContent = count ? Math.round(passCount / count * 100) + '%' : '—';
+  document.getElementById('passCount').textContent = passCount;
+  document.getElementById('failCount').textContent = failCount + (failCount === 1 ? ' student below 50%' : ' students below 50%');
+  document.getElementById('passSummary').textContent = count
+    ? 'Passing students: ' + passCount + ' of ' + count + '. Students below 50%: ' + failCount + '. Pass rate: ' + Math.round(passCount / count * 100) + '%. The pass mark is set to 50% for this demo.'
+    : 'Add student marks to calculate pass and fail statistics.';
+  const gradeOrder = ['A', 'B', 'C', 'D', 'F'];
+  const gradeCounts = { A: 0, B: 0, C: 0, D: 0, F: 0 };
+  studentMarks.forEach(mark => gradeCounts[gradeForMark(mark)]++);
+  const chart = document.getElementById('gradeChart');
+  chart.innerHTML = '';
+  gradeOrder.forEach(grade => {
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    const label = document.createElement('span');
+    label.textContent = 'Grade ' + grade;
+    const track = document.createElement('div');
+    track.className = 'bar-track';
+    const fill = document.createElement('div');
+    fill.className = 'bar-fill';
+    fill.style.width = (count ? gradeCounts[grade] / count * 100 : 0) + '%';
+    track.appendChild(fill);
+    const value = document.createElement('strong');
+    value.textContent = gradeCounts[grade];
+    row.append(label, track, value);
+    chart.appendChild(row);
+  });
+  const rankingRows = document.getElementById('rankingRows');
+  const rankingEmpty = document.getElementById('rankingEmpty');
+  rankingRows.innerHTML = '';
+  const sorted = studentNames.map((name, index) => ({ name, mark: studentMarks[index], index }))
+    .sort((a, b) => b.mark - a.mark || a.name.localeCompare(b.name));
+  rankingEmpty.hidden = sorted.length !== 0;
+  sorted.forEach((student, index) => {
+    const row = document.createElement('tr');
+    [index + 1, student.name, student.mark + '%', gradeForMark(student.mark)].forEach(value => {
+      const cell = document.createElement('td');
+      cell.textContent = value;
+      row.appendChild(cell);
+    });
+    rankingRows.appendChild(row);
+  });
+  if (sorted.length) {
+    document.getElementById('leaderName').textContent = sorted[0].name.split(' ')[0];
+    document.getElementById('leaderNote').textContent = sorted[0].mark + '% · Rank #1';
+  } else {
+    document.getElementById('leaderName').textContent = '—';
+    document.getElementById('leaderNote').textContent = 'No rankings yet';
+  }
+}
+function render() {
+  const tbody = document.getElementById('studentRows');
+  const empty = document.getElementById('empty');
+  tbody.innerHTML = '';
+  let visibleCount = 0;
+  const query = searchInput.value.trim().toLowerCase();
+  for (let i = 0; i < studentNames.length; i++) {
+    if (!studentNames[i].toLowerCase().includes(query)) continue;
+    visibleCount++;
+    const row = document.createElement('tr');
+    const indexCell = document.createElement('td');
+    indexCell.innerHTML = '<span class="index">' + i + '</span>';
+    const nameCell = document.createElement('td');
+    nameCell.className = 'name-cell';
+    nameCell.textContent = studentNames[i];
+    const markCell = document.createElement('td');
+    markCell.className = 'score';
+    markCell.textContent = studentMarks[i] + '%';
+    const gradeCell = document.createElement('td');
+    const gradeBadge = document.createElement('span');
+    gradeBadge.className = 'grade';
+    gradeBadge.textContent = gradeForMark(studentMarks[i]);
+    gradeCell.appendChild(gradeBadge);
+    const progressCell = document.createElement('td');
+    progressCell.innerHTML = '<div class="track"><div class="fill" style="width:' + studentMarks[i] + '%"></div></div>';
+    const actionCell = document.createElement('td');
+    const removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.className = 'delete';
+    removeButton.textContent = 'Remove';
+    removeButton.setAttribute('aria-label', 'Remove ' + studentNames[i]);
+    removeButton.addEventListener('click', () => {
+      studentNames.splice(i, 1);
+      studentMarks.splice(i, 1);
+      saveData();
+      message.textContent = 'Student removed.';
+      render();
+    });
+    actionCell.appendChild(removeButton);
+    row.append(indexCell, nameCell, markCell, gradeCell, progressCell, actionCell);
+    tbody.appendChild(row);
+  }
+  empty.hidden = visibleCount !== 0;
+  empty.textContent = studentNames.length === 0 ? 'No students yet. Add a student using the form above.' : 'No students match that search.';
+  document.getElementById('total').textContent = studentNames.length;
+  if (studentMarks.length === 0) {
+    document.getElementById('average').textContent = '—';
+    document.getElementById('highest').textContent = '—';
+    document.getElementById('topStudent').textContent = 'No marks recorded';
+    updatePerformanceDashboard();
+    return;
+  }
+  const sum = studentMarks.reduce((total, mark) => total + mark, 0);
+  document.getElementById('average').textContent = (sum / studentMarks.length).toFixed(1) + '%';
+  const highestMark = Math.max(...studentMarks);
+  const highestIndex = studentMarks.indexOf(highestMark);
+  document.getElementById('highest').textContent = highestMark + '%';
+  document.getElementById('topStudent').textContent = studentNames[highestIndex];
+  updatePerformanceDashboard();
+}
+function addStudent() {
+  const name = nameInput.value.trim();
+  const mark = Number(markInput.value);
+  if (!name) { message.textContent = 'Please enter a student name before adding.'; nameInput.focus(); return; }
+  if (markInput.value.trim() === '' || !Number.isInteger(mark) || mark < 0 || mark > 100) { message.textContent = 'Please enter a whole-number mark from 0 to 100.'; markInput.focus(); return; }
+  studentNames.push(name);
+  studentMarks.push(mark);
+  saveData();
+  message.textContent = name + ' was added successfully.';
+  form.reset();
+  nameInput.focus();
+  render();
+}
+document.getElementById('addStudentBtn').addEventListener('click', addStudent);
+searchInput.addEventListener('input', render);
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const csvCell = value => '"' + String(value).replace(/"/g, '""') + '"';
+  const lines = [['Index', 'Student Name', 'Mark (%)', 'Grade']];
+  for (let i = 0; i < studentNames.length; i++) {
+    lines.push([i + 1, studentNames[i], studentMarks[i], gradeForMark(studentMarks[i])]);
+  }
+  const csv = lines.map(line => line.map(csvCell).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'student-marks-results.csv';
+  link.click();
+  URL.revokeObjectURL(url);
+  message.textContent = 'Results exported as a CSV file.';
+});
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  addStudent();
+});
+document.getElementById('resetBtn').addEventListener('click', () => {
+  studentNames = [...initialNames];
+  studentMarks = [...initialMarks];
+  saveData();
+  message.textContent = 'Demo data restored.';
+  render();
+});
+render();
+</script>
+</body>
+</html>
